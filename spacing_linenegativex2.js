@@ -2,13 +2,13 @@
 function setup() {
     createCanvas(windowWidth, windowHeight);
    colorMode(HSB);
-   frameRate(10);
+   frameRate(1);
 }
 
 function draw() {
 
 background(0,0,162);
-noLoop();
+//noLoop();
 noFill();
 
   
