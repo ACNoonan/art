@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weave Pattern Renderer - WIF to p5.js Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .info {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            max-width: 300px;
+        }
+        
+        .controls h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .control-group {
+            margin-bottom: 10px;
+        }
+        
+        .control-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .keyboard-controls {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            max-width: 200px;
+        }
+        
+        .keyboard-controls h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .keyboard-controls ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        .keyboard-controls li {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .key {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-weight: bold;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Weave Pattern Renderer - WIF to p5.js Demo</h1>
+    
+    <div class="info">
+        <h2>About This Demo</h2>
+        <p>This demo shows the WIF to p5.js conversion system in action. The pattern displayed is converted from 
+           the <strong>08sK002.wif</strong> file (8-shaft straight twill) found in Alejandro's collection.</p>
+        
+        <h3>Features:</h3>
+        <ul>
+            <li><strong>WIF Parsing:</strong> Converts WIF files to JSON format with threading, treadling, and color data</li>
+            <li><strong>Interactive Controls:</strong> Adjust cell size, moire parameters, and pattern display</li>
+            <li><strong>Moire Generation:</strong> Creates interference patterns for shadow weave exploration</li>
+            <li><strong>Pattern Export:</strong> Save patterns as JSON or PNG files</li>
+        </ul>
+        
+        <h3>Moire Shadow Weave:</h3>
+        <p>Toggle the moire effect to see how overlapping patterns at different scales create interference patterns. 
+           This is particularly effective for shadow weave patterns where the contrast between light and dark threads 
+           creates striking visual effects.</p>
+    </div>
+    
+    <div class="controls">
+        <h3>Controls</h3>
+        <div class="control-group">
+            <label>Cell Size: <span id="cellSizeValue">8</span></label>
+        </div>
+        <div class="control-group">
+            <label>Scale 1: <span id="scale1Value">1.0</span></label>
+        </div>
+        <div class="control-group">
+            <label>Scale 2: <span id="scale2Value">1.2</span></label>
+        </div>
+        <div class="control-group">
+            <label>Rotation: <span id="rotationValue">0°</span></label>
+        </div>
+        <div class="control-group">
+            <label>Moire Effect: <span id="moireStatus">Off</span></label>
+        </div>
+    </div>
+    
+    <div class="keyboard-controls">
+        <h3>Keyboard</h3>
+        <ul>
+            <li><span class="key">M</span> Toggle Moire</li>
+            <li><span class="key">S</span> Save PNG</li>
+            <li><span class="key">R</span> Reset</li>
+            <li><span class="key">Drag</span> Rotate</li>
+        </ul>
+    </div>
+
+    <script>
+        // Load the converted pattern data
+        let patternData = null;
+        
+        // Load the pattern data from the generated JSON
+        fetch('pattern_08sK002.json')
+            .then(response => response.json())
+            .then(data => {
+                console.log('Pattern loaded successfully:', data.name);
+                patternData = data;
+                if (typeof loadPattern === 'function') {
+                    loadPattern(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading pattern:', error);
+                // Fallback to default pattern
+                if (typeof loadDefaultPattern === 'function') {
+                    loadDefaultPattern();
+                }
+            });
+        
+        // Update control display values
+        function updateControlDisplay() {
+            document.getElementById('cellSizeValue').textContent = cellSize;
+            document.getElementById('scale1Value').textContent = scale1.toFixed(1);
+            document.getElementById('scale2Value').textContent = scale2.toFixed(1);
+            document.getElementById('rotationValue').textContent = Math.round(rotation * 180 / Math.PI) + '°';
+            document.getElementById('moireStatus').textContent = showMoire ? 'On' : 'Off';
+        }
+        
+        // Override the renderUI function to update our HTML display
+        const originalRenderUI = renderUI;
+        renderUI = function() {
+            if (originalRenderUI) originalRenderUI();
+            updateControlDisplay();
+        };
+    </script>
+    
+    <script src="p5js-framework/pattern_renderer.js"></script>
+</body>
+</html>
